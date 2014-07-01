@@ -1,0 +1,3 @@
+[submodule "external/aws-sdk-php"]
+	path = external/aws-sdk-php
+	url = https://github.com/aws/aws-sdk-php.git
