@@ -11,6 +11,24 @@
         class S3FileSystem extends \Idno\Files\FileSystem
         {
 
+            public $client = false;
+
+            /**
+             * Attach an instantiated AWS client
+             * @param \Aws\S3\S3Client $client
+             */
+            public function attachAWSClient($client) {
+                $this->client = $client;
+            }
+
+            /**
+             * Returns the attached AWS client
+             * @return \Aws\S3\S3Client $client
+             */
+            public function getClient() {
+                return $this->client;
+            }
+
             /**
              * Find a file.
              * @param $id
@@ -19,7 +37,7 @@
             public function findOne($id)
             {
                 // Get path to load from
-                $path = rtrim(\Idno\Core\site()->config()->uploadpath, ' /') . '/';
+                $path = '';
 
                 if (is_array($id)) {
                     if (!empty($id['_id'])) {
@@ -30,20 +48,27 @@
                 $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
                 $data_file   = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
-                if (file_exists($upload_file)) {
-                    $file                    = new \Idno\Files\LocalFile();
-                    $file->_id               = $id;
-                    $file->internal_filename = $upload_file;
-                    if ($metadata = file_get_contents($data_file)) {
-                        if ($metadata = json_decode($metadata, true)) {
-                            $file->metadata       = $metadata;
-                            $file->file           = $metadata;
-                            $file->file['_id']    = $id;
-                            $file->file['length'] = filesize($upload_file);
+                if ($this->getClient()->doesBucketExist(\Idno\Core\site()->config()->aws_bucket)) {
+
+                    if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
+
+                        $file                    = new \Idno\Files\LocalFile();
+                        $file->_id               = $id;
+                        $file->internal_filename = 's3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file;
+                        if ($metadata = file_get_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file)) {
+                            if ($metadata = json_decode($metadata, true)) {
+                                $file->metadata       = $metadata;
+                                $file->file           = $metadata;
+                                $file->file['_id']    = $id;
+                                $file->file['length'] = filesize('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file);
+                            }
                         }
+
+                        return $file;
+                    } else {
+                        \Idno\Core\site()->session()->addMessage('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file . " doesn't exist");
                     }
 
-                    return $file;
                 }
 
                 return false;
@@ -58,7 +83,14 @@
              */
             public function storeFile($file_path, $metadata, $options)
             {
-                if (file_exists($file_path) && $path = \Idno\Core\site()->config()->uploadpath) {
+                if (file_exists($file_path)) {
+
+                    // Ensure we have a bucket
+                    if (!$this->getClient()->doesBucketExist(\Idno\Core\site()->config()->aws_bucket)) {
+                        if ($this->getClient()->createBucket(['Bucket' => \Idno\Core\site()->config()->aws_bucket])) {
+                            $this->getClient()->waitUntil('BucketExists', array('Bucket' => \Idno\Core\site()->config()->aws_bucket));
+                        }
+                    }
 
                     // Encode metadata for saving
                     $metadata = json_encode($metadata);
@@ -66,21 +98,19 @@
                     // Generate a random ID
                     $id = md5(time() . $metadata);
 
-                    // Generate save path
-                    if ($path[sizeof($path) - 1] != '/') {
-                        $path .= '/';
-                    }
-                    $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
-                    $data_file   = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
+                    // Blank save path for now
+                    $path = 's3://' . \Idno\Core\site()->config()->aws_bucket . '/';
 
-                    foreach ([$path . \Idno\Core\site()->config()->host, $path . \Idno\Core\site()->config()->host . '/' . $id[0], $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1], $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2], $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3]] as $up_path) {
-                        if (!is_dir($up_path)) {
-                            $result = mkdir($up_path);
-                        }
-                    }
+                    $upload_file = \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                    $data_file   = \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
-                    copy($file_path, $upload_file);
-                    file_put_contents($data_file, $metadata);
+                    $result = $this->getClient()->putObject(array(
+                        'Bucket'     => \Idno\Core\site()->config()->aws_bucket,
+                        'Key'        => $upload_file,
+                        'SourceFile' => $file_path
+                    ));
+
+                    file_put_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file, $metadata);
 
                     return $id;
 

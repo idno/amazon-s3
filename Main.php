@@ -8,7 +8,9 @@
 
                 // All of this only makes sense if we have an aws_key and aws_secret
 
-                if (!empty(\Idno\Core\site()->config()->aws_key) && !empty(\Idno\Core\site()->config()->aws_secret)) {
+                if (!empty(\Idno\Core\site()->config()->aws_key)
+                    && !empty(\Idno\Core\site()->config()->aws_secret)
+                    && !empty(\Idno\Core\site()->config()->aws_bucket)) {
 
                     // Load AWS SDK and dependencies
                     $classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
@@ -31,6 +33,10 @@
 
                     // Impose the S3 filesystem
                     \Idno\Core\site()->filesystem = new \IdnoPlugins\S3\S3FileSystem();
+                    $s3client = $aws->get('S3');
+                    $s3client->registerStreamWrapper();
+
+                    \Idno\Core\site()->filesystem->attachAWSClient($s3client);
 
                 }
 
