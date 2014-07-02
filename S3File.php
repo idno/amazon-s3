@@ -1,8 +1,8 @@
 <?php
 
-    namespace Idno\Files {
+    namespace IdnoPlugins\S3 {
 
-        class S3File extends File
+        class S3File extends \Idno\Files\File
         {
 
             public $internal_filename = '';
@@ -25,6 +25,9 @@
              */
             function passThroughBytes()
             {
+                if ($url = $this->getS3URL()) {
+                    header('Location: ' . $url); exit;
+                }
                 if (file_exists($this->internal_filename)) {
                     if ($file_handle = fopen($this->internal_filename,'r')) {
                         ob_end_flush();
@@ -64,6 +67,24 @@
                 }
 
                 return basename($this->internal_filename);
+            }
+
+            /**
+             * Retrieve this object's URL on S3
+             * @return bool|string
+             */
+            function getS3URL()
+            {
+                $client = \Idno\Core\site()->filesystem()->getClient();
+                /* @var \Aws\S3\S3Client $client */
+
+                $key = str_replace('s3://' . \Idno\Core\site()->config()->aws_bucket . '/','', $this->internal_filename);
+
+                if ($url = $client->getObjectUrl(\Idno\Core\site()->config()->aws_bucket, $key)) {
+                    return $url;
+                }
+
+                return false;
             }
 
         }

@@ -17,7 +17,8 @@
              * Attach an instantiated AWS client
              * @param \Aws\S3\S3Client $client
              */
-            public function attachAWSClient($client) {
+            public function attachAWSClient($client)
+            {
                 $this->client = $client;
             }
 
@@ -25,7 +26,8 @@
              * Returns the attached AWS client
              * @return \Aws\S3\S3Client $client
              */
-            public function getClient() {
+            public function getClient()
+            {
                 return $this->client;
             }
 
@@ -52,7 +54,7 @@
 
                     if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
 
-                        $file                    = new \Idno\Files\LocalFile();
+                        $file                    = new \IdnoPlugins\S3\S3File();
                         $file->_id               = $id;
                         $file->internal_filename = 's3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file;
                         if ($metadata = file_get_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file)) {
@@ -93,10 +95,10 @@
                     }
 
                     // Encode metadata for saving
-                    $metadata = json_encode($metadata);
+                    $json_metadata = json_encode($metadata);
 
                     // Generate a random ID
-                    $id = md5(time() . $metadata);
+                    $id = md5(time() . $json_metadata);
 
                     // Blank save path for now
                     $path = 's3://' . \Idno\Core\site()->config()->aws_bucket . '/';
@@ -107,10 +109,15 @@
                     $result = $this->getClient()->putObject(array(
                         'Bucket'     => \Idno\Core\site()->config()->aws_bucket,
                         'Key'        => $upload_file,
-                        'SourceFile' => $file_path
+                        'SourceFile' => $file_path,
+                        'ACL'        => 'public-read',
+                        'ContentDisposition'
+                                     => 'attachment; filename=' . $metadata['filename'],
+                        'ContentType'
+                                     => $metadata['mime_type']
                     ));
 
-                    file_put_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file, $metadata);
+                    file_put_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file, $json_metadata);
 
                     return $id;
 
