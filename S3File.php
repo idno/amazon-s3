@@ -38,6 +38,18 @@
             }
 
             /**
+             * Returns a file resource referencing the S3 object
+             * @return resource
+             */
+            function getResource() {
+                if (file_exists($this->internal_filename)) {
+                    if ($file_handle = fopen($this->internal_filename, 'r')) {
+                        return $file_handle;
+                    }
+                }
+            }
+
+            /**
              * Delete this file
              */
             function delete()

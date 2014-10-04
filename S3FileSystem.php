@@ -50,7 +50,7 @@
                 $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
                 $data_file   = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
-                if ($this->getClient()->doesBucketExist(\Idno\Core\site()->config()->aws_bucket)) {
+                //if ($this->getClient()->doesBucketExist(\Idno\Core\site()->config()->aws_bucket)) {
 
                     if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
 
@@ -71,9 +71,30 @@
                         \Idno\Core\site()->session()->addMessage('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file . " doesn't exist");
                     }
 
-                }
+                //}
 
                 return false;
+            }
+
+            /**
+             * Forward to a file blindly
+             * @param $id
+             */
+            public function passThroughOne($id) {
+
+                // Get path to load from
+                $path = 'http://' . \Idno\Core\site()->config()->aws_bucket . '/';
+
+                if (is_array($id)) {
+                    if (!empty($id['_id'])) {
+                        $id = $id['_id'];
+                    }
+                }
+
+                $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+
+                header("Location: {$upload_file}"); exit;
+
             }
 
             /**
