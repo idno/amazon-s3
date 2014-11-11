@@ -12,17 +12,6 @@
 
                 // All of this only makes sense if we have an aws_key and aws_secret
 
-                // The following variables are set if you're using Elastic Beanstalk
-                /*if (!empty($_SERVER['AWS_SECRET_KEY'])) {
-                    \Idno\Core\site()->config->config['aws_key'] = $_SERVER['AWS_SECRET_KEY'];
-                }
-                if (!empty($_SERVER['AWS_ACCESS_KEY_ID'])) {
-                    \Idno\Core\site()->config->config['aws_secret'] = $_SERVER['AWS_ACCESS_KEY_ID'];
-                }
-                if (!empty($_SERVER['AWS_S3_BUCKET'])) {
-                    \Idno\Core\site()->config->config['aws_bucket'] = $_SERVER['AWS_S3_BUCKET'];
-                }*/
-
                 if (!empty(\Idno\Core\site()->config()->aws_key)
                     && !empty(\Idno\Core\site()->config()->aws_secret)
                     && !empty(\Idno\Core\site()->config()->aws_bucket)) {
