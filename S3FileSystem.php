@@ -50,8 +50,6 @@
                 $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
                 $data_file   = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
-                //if ($this->getClient()->doesBucketExist(\Idno\Core\site()->config()->aws_bucket)) {
-
                     if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
 
                         $file                    = new \IdnoPlugins\S3\S3File();
@@ -70,8 +68,6 @@
                     } else {
                         \Idno\Core\site()->session()->addMessage('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file . " doesn't exist");
                     }
-
-                //}
 
                 return false;
             }
@@ -133,7 +129,7 @@
                         'SourceFile' => $file_path,
                         'ACL'        => 'public-read',
                         'ContentDisposition'
-                                     => 'attachment; filename=' . $metadata['filename'],
+                                     => 'inline; filename=' . $metadata['filename'],
                         'ContentType'
                                      => $metadata['mime_type']
                     ));
