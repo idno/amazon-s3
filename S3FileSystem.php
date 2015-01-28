@@ -47,8 +47,8 @@
                     }
                 }
 
-                $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
-                $data_file   = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
+                $upload_file = $path . \Idno\Core\site()->config()->getFileBaseDirName . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                $data_file   = $path . \Idno\Core\site()->config()->getFileBaseDirName . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
                     if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
 
@@ -87,7 +87,7 @@
                     }
                 }
 
-                $upload_file = $path . \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                $upload_file = $path . \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
 
                 header("Location: {$upload_file}"); exit;
 
@@ -120,8 +120,8 @@
                     // Blank save path for now
                     $path = 's3://' . \Idno\Core\site()->config()->aws_bucket . '/';
 
-                    $upload_file = \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
-                    $data_file   = \Idno\Core\site()->config()->host . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
+                    $upload_file = \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                    $data_file   = \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
                     $result = $this->getClient()->putObject(array(
                         'Bucket'     => \Idno\Core\site()->config()->aws_bucket,
@@ -133,6 +133,8 @@
                         'ContentType'
                                      => $metadata['mime_type']
                     ));
+
+                    error_log("PUTTING {$upload_file}; " . $json_metadata);
 
                     file_put_contents('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $data_file, $json_metadata);
 
