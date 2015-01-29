@@ -47,8 +47,8 @@
                     }
                 }
 
-                $upload_file = $path . \Idno\Core\site()->config()->getFileBaseDirName . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
-                $data_file   = $path . \Idno\Core\site()->config()->getFileBaseDirName . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
+                $upload_file = $path . \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                $data_file   = $path . \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.data';
 
                     if (file_exists('s3://' . \Idno\Core\site()->config()->aws_bucket . '/' . $upload_file)) {
 
