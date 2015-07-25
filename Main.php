@@ -29,6 +29,12 @@
 
                     $classLoader->register();
 
+                    if (empty(\Idno\Core\site()->config()->aws_region)) {
+                        $region = 'us-east-1';
+                    } else {
+                        $region = \Idno\Core\site()->config()->aws_region;
+                    }
+
                     $aws = \Aws\Common\Aws::factory(array(
                         'key'     => \Idno\Core\site()->config()->aws_key,
                         'secret'  => \Idno\Core\site()->config()->aws_secret,
