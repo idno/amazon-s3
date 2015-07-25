@@ -17,6 +17,14 @@
 
             function getContent()
             {
+
+                if (!empty(\Idno\Core\site()->config()->cloudFront)) {
+                    $path = \Idno\Core\site()->config()->cloudFront;
+                    $id = $this->arguments[0];
+                    $url = $path . \Idno\Core\site()->config()->getFileBaseDirName() . '/' . $id[0] . '/' . $id[1] . '/' . $id[2] . '/' . $id[3] . '/' . $id . '.file';
+                    header("Location: {$url}"); exit;
+                }
+
                 if (!empty($this->arguments[0])) {
                     if ($filesystem = \Idno\Core\site()->filesystem()) {
                         if ($filesystem instanceof S3FileSystem) {

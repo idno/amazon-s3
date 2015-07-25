@@ -4,8 +4,9 @@
 
         class Main extends \Idno\Common\Plugin {
 
-            function registerPageHandlers() {
-                $this->addPageHandler('/file/([A-Za-z0-9]+)(/.*)?', '\IdnoPlugins\S3\Pages\File\View', true);
+            function registerPages() {
+                \Idno\Core\site()->addPageHandler('/file/([A-Za-z0-9]+)(/.*)?', '\IdnoPlugins\S3\Pages\File\View', true);
+                \Idno\Core\site()->hijackPageHandler('/file/([A-Za-z0-9]+)(/.*)?', '\IdnoPlugins\S3\Pages\File\View', true);
             }
 
             function registerEventHooks() {
