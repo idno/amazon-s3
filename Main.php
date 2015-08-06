@@ -35,14 +35,14 @@
                         $region = \Idno\Core\site()->config()->aws_region;
                     }
                     
-					$params = array(
+                    $params = array(
                         'key'     => \Idno\Core\site()->config()->aws_key,
                         'secret'  => \Idno\Core\site()->config()->aws_secret,
                         'region'  => $region,
                     );
                     
                     if (!empty(\Idno\Core\site()->config()->aws_base_url)) {
-                    	$params['base_url'] = \Idno\Core\site()->config()->aws_base_url;
+                        $params['base_url'] = \Idno\Core\site()->config()->aws_base_url;
                     }
                     
                     if (!empty(\Idno\Core\site()->config()->aws_suppress_region)) {
