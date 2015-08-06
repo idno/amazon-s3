@@ -38,9 +38,8 @@
                     $aws = \Aws\Common\Aws::factory(array(
                         'key'     => \Idno\Core\site()->config()->aws_key,
                         'secret'  => \Idno\Core\site()->config()->aws_secret,
-                        'region'  => 'us-east-1',
+                        'region'  => $region,
                     ));
-
 
                     // Impose the S3 filesystem
                     \Idno\Core\site()->filesystem = new \IdnoPlugins\S3\S3FileSystem();
