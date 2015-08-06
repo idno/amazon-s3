@@ -34,12 +34,22 @@
                     } else {
                         $region = \Idno\Core\site()->config()->aws_region;
                     }
-
-                    $aws = \Aws\Common\Aws::factory(array(
+                    
+					$params = array(
                         'key'     => \Idno\Core\site()->config()->aws_key,
                         'secret'  => \Idno\Core\site()->config()->aws_secret,
                         'region'  => $region,
-                    ));
+                    );
+                    
+                    if (!empty(\Idno\Core\site()->config()->aws_base_url)) {
+                    	$params['base_url'] = \Idno\Core\site()->config()->aws_base_url;
+                    }
+                    
+                    if (!empty(\Idno\Core\site()->config()->aws_suppress_region)) {
+                    	unset($params['region']);
+                    }
+
+                    $aws = \Aws\Common\Aws::factory($params);
 
                     // Impose the S3 filesystem
                     \Idno\Core\site()->filesystem = new \IdnoPlugins\S3\S3FileSystem();
