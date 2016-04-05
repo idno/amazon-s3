@@ -129,7 +129,7 @@
                         'SourceFile' => $file_path,
                         'ACL'        => 'public-read',
                         'ContentDisposition'
-                                     => 'inline; filename=' . $metadata['filename'],
+                                     => 'inline; filename="' . $metadata['filename'] . '"',
                         'ContentType'
                                      => $metadata['mime_type']
                     ));
