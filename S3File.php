@@ -80,6 +80,20 @@
 
                 return basename($this->internal_filename);
             }
+	    
+	    /**
+	     * Returns this file's size in bytes.
+	     * @return int
+	     */
+	    function getSize() {
+		if (!empty($this->file['length'])) {
+                    return $this->file['length'];
+                }
+		
+		if (file_exists($this->internal_filename)) {
+		    return filesize($this->internal_filename);
+		}
+	    }
 
             /**
              * Retrieve this object's URL on S3
