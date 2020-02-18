@@ -1,0 +1,33 @@
+{
+    "name": "idno/s3",
+    "type": "known-plugin",
+    "description": "Adds S3 support to Known",
+    "version": "1.0.0",
+    "homepage": "https://github.com/idno/S3",
+    "keywords": [
+        "known",
+        "plugin",
+        "S3"
+    ],
+    "license": "Apache-2.0",
+    "prefer-stable": true,
+    "authors": [
+        {
+            "name": "Ben Werdmuller",
+            "email": "ben@withknown.com"
+        },
+        {
+            "name": "Lewis Cowles",
+            "email": "lewiscowles@me.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "monolog/monolog": "~1.7",
+        "aws/aws-sdk-php": "^3.133",
+        "composer/installers": "~1.0"
+    },
+    "extra": {
+        "installer-name": "S3"
+    }
+}

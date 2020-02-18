@@ -1,67 +1,46 @@
 <?php
 
-    namespace IdnoPlugins\S3 {
+namespace IdnoPlugins\S3 {
 
-        class Main extends \Idno\Common\Plugin {
+    use \Idno\Common\Plugin;
+    use \Aws\S3\S3Client;
 
-            function registerPages() {
-                \Idno\Core\site()->addPageHandler('/file/([A-Za-z0-9]+)(/.*)?', '\IdnoPlugins\S3\Pages\File\View', true);
-                \Idno\Core\site()->hijackPageHandler('/file/([A-Za-z0-9]+)(/.*)?', '\IdnoPlugins\S3\Pages\File\View', true);
-            }
+    class Main extends Plugin {
+        public $_s3client;
 
-            function registerEventHooks() {
+        function registerEventHooks() {
+            $config = \Idno\Core\Idno::site()->config();
+            // All of this only makes sense if we have an aws_key and aws_secret
+            if (!empty($config->aws_key)
+                && !empty($config->aws_secret)
+                && !empty($config->aws_bucket)) {
 
-                // All of this only makes sense if we have an aws_key and aws_secret
-
-                if (!empty(\Idno\Core\site()->config()->aws_key)
-                    && !empty(\Idno\Core\site()->config()->aws_secret)
-                    && !empty(\Idno\Core\site()->config()->aws_bucket)) {
-
-                    // Load AWS SDK and dependencies
-                    $classLoader = new \Symfony\Component\ClassLoader\UniversalClassLoader();
-                    $classLoader->registerNamespaces(array(
-                        'Aws'      => dirname(__FILE__) . '/external/aws-sdk/src',
-                        'Guzzle'   => dirname(__FILE__) . '/external/guzzle/src',
-                        'Doctrine' => dirname(__FILE__) . '/external/doctrine/lib/Doctrine',
-                        'Psr'      => dirname(__FILE__) . '/external/psrlog',
-                        'Monolog'  => dirname(__FILE__) . '/external/monolog/src'
-                    ));
-
-                    $classLoader->register();
-
-                    if (empty(\Idno\Core\site()->config()->aws_region)) {
-                        $region = 'us-east-1';
-                    } else {
-                        $region = \Idno\Core\site()->config()->aws_region;
-                    }
-                    
-                    $params = array(
-                        'key'     => \Idno\Core\site()->config()->aws_key,
-                        'secret'  => \Idno\Core\site()->config()->aws_secret,
-                        'region'  => $region,
-                    );
-                    
-                    if (!empty(\Idno\Core\site()->config()->aws_base_url)) {
-                        $params['base_url'] = \Idno\Core\site()->config()->aws_base_url;
-                    }
-                    
-                    if (!empty(\Idno\Core\site()->config()->aws_suppress_region)) {
-                    	unset($params['region']);
-                    }
-
-                    $aws = \Aws\Common\Aws::factory($params);
-
-                    // Impose the S3 filesystem
-                    \Idno\Core\site()->filesystem = new \IdnoPlugins\S3\S3FileSystem();
-                    $s3client = $aws->get('S3');
-                    $s3client->registerStreamWrapper();
-
-                    \Idno\Core\site()->filesystem->attachAWSClient($s3client);
-
+                if (empty($config->aws_region)) {
+                    $region = 'us-east-1';
+                } else {
+                    $region = $config->aws_region;
                 }
 
+                $params = array(
+                    'credentials' => [
+                        'key'     => $config->aws_key,
+                        'secret'  => $config->aws_secret,
+                    ],
+                    'region'  => $region,
+                    'version' => 'latest',
+                );
+
+                if (!empty($config->aws_base_url)) {
+                    $params['base_url'] = $config->aws_base_url;
+                }
+
+                if (!empty($config->aws_suppress_region)) {
+                    unset($params['region']);
+                }
+
+                $this->_s3client = S3Client::factory($params);
+                $this->_s3client->registerStreamWrapper();
             }
-
         }
-
     }
+}
