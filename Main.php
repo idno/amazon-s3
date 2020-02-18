@@ -7,6 +7,16 @@ namespace IdnoPlugins\S3 {
 
     class Main extends Plugin {
         public $_s3client;
+        
+        function registerTranslations()
+        {
+
+            \Idno\Core\Idno::site()->language()->register(
+                new \Idno\Core\GetTextTranslation(
+                    's3', dirname(__FILE__) . '/languages/'
+                )
+            );
+        }
 
         function registerEventHooks() {
             $config = \Idno\Core\Idno::site()->config();
