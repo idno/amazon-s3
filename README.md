@@ -7,7 +7,7 @@ Installation
 ------------
 
 1. Modify your known `composer.json` to include the below; then update your lockfile
- * `"idno/S3": "^1.0.0"`
+ * `"idno/amazon-s3": "^1.0.0"`
 2. `composer update --lock`
 * Enable the plugin
 * Set the following values in your site config.ini:
